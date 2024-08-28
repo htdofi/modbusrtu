@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modbus 通信设置</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+    }
+    .main-frame {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .frame {
+        border: 2px solid #8b4513;
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #e3f6e1;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .frame-title {
+        font-weight: bold;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+        color: #8b4513;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr 2fr;
+        gap: 10px;
+        align-items: center;
+    }
+    .label {
+        text-align: right;
+        font-weight: bold;
+        color: #006400;
+    }
+    select, input {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+    select:focus, input:focus {
+        outline: none;
+        border-color: #8b4513;
+    }
+    button {
+        padding: 8px 12px;
+        border-radius: 5px;
+        border: none;
+        background-color: #8b4513;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-left: 10px;
+    }
+    button:hover {
+        background-color: #006400;
+    }
+    .status-label {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: red;
+        display: inline-block;
+        margin-left: 10px;
+    }
+    .time-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .time-input {
+        display: flex;
+        align-items: center;
+        margin-right: 10px;
+    }
+    .time-input select {
+        width: auto;
+        min-width: 60px;
+        margin-right: 5px;
+    }
+    .time-input span {
+        margin-right: 5px;
+    }
+    .time_grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    #messages {
+        margin-top: 20px;
+    }
+    #messages ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    #messages li {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .alert {
+        border-left: 5px solid #8b4513;
+        background-color: #ffffff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .alert-success {
+        border-left-color: #006400;
+        background-color: #e3f6e1;
+    }
+    .alert-error {
+        border-left-color: #ff0000;
+        background-color: #f6e1e1;
+    }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+    <body>
+    <div style="text-align: right; padding: 20px;">
+        <label id="timeLabel" style="font-family: Arial, sans-serif; font-size: 18px;"></label>
+    </div>
+    <div class="main-frame">
+        <!-- 串口设置部分 -->
+        <div class="frame" id="serial-frame">
+            <div class="frame-title">串口设置</div>
+            <div class="grid">
+                <label for="port-select" class="label">选择串口：</label>
+                <select id="port-select">
+                    <option value="">请选择串口</option>
+                </select>
+                <label for="baud-combo" class="label">波特率:</label>
+                <select id="baud-combo">
+                    <option value="9600">9600</option>
+                    <option value="19200">19200</option>
+                    <option value="38400">38400</option>
+                    <option value="57600">57600</option>
+                    <option value="115200">115200</option>
+                </select>
+                <label for="data-combo" class="label">数据位:</label>
+                <select id="data-combo">
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                </select>
+                <label for="stop-combo" class="label">停止位:</label>
+                <select id="stop-combo">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                </select>
+                <label for="parity-combo" class="label">校验位:</label>
+                <select id="parity-combo">
+                    <option value="N">N</option>
+                    <option value="E">E</option>
+                    <option value="O">O</option>
+                </select>
+                <label for="start-combo" class="label">起始位:</label>
+                <select id="start-combo">
+                    <option value="1">1</option>
+                </select>
+                <button id="reset-btn">串口重置</button>
+                <button id="connect-btn">打开串口</button>
+                <span class="status-label" id="status-label"></span>
+            </div>
+        </div>
+
+
+        <!-- 时间设置部分 -->
+        <div class="frame" id="time-frame">
+          <div class="frame-title">时间设置</div>
+          <div class="time_grid">
+            <!-- 主控时间 -->
+            <div class="time-row">
+              <label for="main-date" class="label">主控时间:</label>
+              <input type="date" id="main-date">
+              <label class="label"></label>
+              <div class="time-input">
+                <select id="main-time-hour"></select>
+                <span>:</span>
+                <select id="main-time-minute"></select>
+                <span>:</span>
+                <select id="main-time-second"></select>
+              </div>
+              <button id="set-main-time-btn">设置</button>
+              <button id="reset-main-time-btn">重置</button>
+            </div>
+
+            <!-- 测试时间 -->
+            <div class="time-row">
+              <label for="test-time-hour" class="label">测试时间:</label>
+              <div class="time-input">
+                <select id="test-time-hour"></select>
+                <span>:</span>
+                <select id="test-time-minute"></select>
+                <span>:</span>
+                <select id="test-time-second"></select>
+              </div>
+              <button id="set-test-time-btn">设置</button>
+              <button id="reset-test-time-btn">重置</button>
+            </div>
+
+            <!-- 间隔时间 -->
+            <div class="time-row">
+              <label for="interval-time-hour" class="label">间隔时间:</label>
+              <div class="time-input">
+                <select id="interval-time-hour"></select>
+                <span>:</span>
+                <select id="interval-time-minute"></select>
+                <span>:</span>
+                <select id="interval-time-second"></select>
+              </div>
+              <button id="set-interval-time-btn">设置</button>
+              <button id="reset-interval-time-btn">重置</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 消息提示部分 -->
+        <div id="messages">
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li class="alert alert-{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+    </body>
+<script>
+    $(document).ready(function() {
+        function getSerialPorts() {
+            $.ajax({
+                url: 'get_serial_ports/',
+                type: 'GET',
+                success: function(response) {
+                    var select = $('#port-select');
+                    select.empty();
+                    select.append($('<option></option>').val('').html('请选择串口'));
+                    $.each(response.ports, function(i, port) {
+                        select.append($('<option></option>').val(port).html(port));
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("获取串口列表失败:", error);
+                    alert("获取串口列表失败，请刷新页面重试。");
+                }
+            });
+        }
+
+        getSerialPorts();
+
+        $('#refresh-ports-btn').click(function() {
+            getSerialPorts();
+        });
+
+        $('#connect-btn').click(function() {
+            var selectedPort = $('#port-select').val();
+            if (!selectedPort) {
+                alert("请先选择一个串口");
+                return;
+            }
+            $.ajax({
+                url: 'toggle_connection/',
+                type: 'POST',
+                data: JSON.stringify({ port: selectedPort }),
+                contentType: 'application/json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#connect-btn').text(response.connected ? '关闭串口' : '打开串口');
+                        $('#status-label').css('background-color', response.connected ? 'green' : 'red');
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    alert('AJAX 错误：' + errmsg);
+                }
+            });
+        });
+
+        const ws = new WebSocket('ws://127.0.0.1:8000/ws/modbus');
+
+        ws.onmessage = function(event) {
+            console.log("Message received: ", event.data);
+            try {
+                const data = JSON.parse(event.data);
+                console.log("Parsed data: ", data);
+                if (data.message && typeof data.message.connected !== 'undefined' && data.type === "connection_status") {
+                    if (data.message.connected) {
+                        showCustomAlert("串口打开成功且时间同步成功");
+                        $('#status-label').css('background-color', 'green');
+                        $('#connect-btn').text('关闭串口');
+                    } else {
+                        showCustomAlert("串口关闭成功");
+                        $('#status-label').css('background-color', 'red');
+                        $('#connect-btn').text('打开串口');
+                    }
+                } else if (data.type === "connection_lost" && data.message && data.message.reason) {
+                    console.log("连接丢失，原因:", data.message.reason);
+                    showCustomAlert("串口连接丢失：" + data.message.reason);
+                    ws.close();
+                } else if (data.type === "time_update") {
+                    if (data.status === 'success') {
+                        showCustomAlert(data.message);
+                    } else {
+                        showCustomAlert("时间设置失败: " + data.message);
+                    }
+                }else if(data.status === "error" || data.status ==="success"){
+                    showCustomAlert(data.message);
+                }
+                 else {
+                    showCustomAlert(data.message.reason);
+                    console.warn("message type or format for", data);
+                }
+            } catch (error) {
+                console.error("Error parsing WebSocket message: ", error);
+                showCustomAlert("WebSocket 消息解析失败");
+            }
+        };
+
+        ws.onerror = function(error) {
+            console.error("WebSocket error: ", error);
+            showCustomAlert("串口连接发生错误");
+        };
+
+        function showCustomAlert(message) {
+            const alertBox = $('<div>').text(message).css({
+                'position': 'fixed',
+                'top': '20px',
+                'right': '20px',
+                'background-color': '#f8d7da',
+                'color': '#721c24',
+                'padding': '10px',
+                'border': '1px solid #f5c6cb',
+                'border-radius': '5px',
+                'z-index': '1000'
+            });
+            $('body').append(alertBox);
+            setTimeout(() => {
+                alertBox.fadeOut(300, () => {
+                    alertBox.remove();
+                });
+            }, 3000);
+        }
+
+        function initTimeSelectors() {
+            for (var i = 0; i < 24; i++) {
+                $('#main-time-hour').append($('<option></option>').val(i).html(i.toString().padStart(2, '0')));
+                $('#test-time-hour').append($('<option></option>').val(i).html(i.toString().padStart(2, '0')));
+                $('#interval-time-hour').append($('<option></option>').val(i).html(i.toString().padStart(2, '0')));
+            }
+            for (var i = 0; i < 60; i++) {
+                $('#main-time-minute').append($('<option></option>').val(i).html(i.toString().padStart(2, '0')));
+                $('#main-time-second').append($('<option></option>').val(i).html(i.toString().padStart(2, '0')));
+                $('#test-time-minute').append($('<option></option>').val(i).html(i.toString().padStart(2, '0')));
+                $('#test-time-second').append($('<option></option>').val(i).html(i.toString().padStart(2, '0')));
+                $('#interval-time-minute').append($('<option></option>').val(i).html(i.toString().padStart(2, '0')));
+                $('#interval-time-second').append($('<option></option>').val(i).html(i.toString().padStart(2, '0')));
+            }
+        }
+
+        initTimeSelectors();
+
+        var now = new Date();
+        $('#main-date').val(now.toISOString().split('T')[0]);
+        $('#main-time-hour').val(now.getHours());
+        $('#main-time-minute').val(now.getMinutes());
+        $('#main-time-second').val(now.getSeconds());
+
+        $('#set-main-time-btn').click(function() {
+            var date = $('#main-date').val();
+            var hour = $('#main-time-hour').val();
+            var minute = $('#main-time-minute').val();
+            var second = $('#main-time-second').val();
+            var dateTime = date + ' ' + hour.padStart(2, '0') + ':' + minute.padStart(2, '0') + ':' + second.padStart(2, '0');
+            ws.send(JSON.stringify({
+                type: 'set_main_time',
+                datetime: dateTime
+            }));
+        });
+
+        $('#reset-main-time-btn').click(function() {
+            var now = new Date();
+            $('#main-date').val(now.toISOString().split('T')[0]);
+            $('#main-time-hour').val(now.getHours());
+            $('#main-time-minute').val(now.getMinutes());
+            $('#main-time-second').val(now.getSeconds());
+        });
+
+        $('#set-test-time-btn').click(function() {
+            var hour = $('#test-time-hour').val();
+            var minute = $('#test-time-minute').val();
+            var second = $('#test-time-second').val();
+            var time = hour.padStart(2, '0') + ':' + minute.padStart(2, '0') + ':' + second.padStart(2, '0');
+            ws.send(JSON.stringify({
+                type: 'set_test_time',
+                time: time
+            }));
+        });
+
+        $('#reset-test-time-btn').click(function() {
+            $('#test-time-hour').val('00');
+            $('#test-time-minute').val('00');
+            $('#test-time-second').val('00');
+        });
+
+        $('#set-interval-time-btn').click(function() {
+            var hour = $('#interval-time-hour').val();
+            var minute = $('#interval-time-minute').val();
+            var second = $('#interval-time-second').val();
+            var time = hour.padStart(2, '0') + ':' + minute.padStart(2, '0') + ':' + second.padStart(2, '0');
+            ws.send(JSON.stringify({
+                type: 'set_interval_time',
+                time: time
+            }));
+        });
+
+        $('#reset-interval-time-btn').click(function() {
+            $('#interval-time-hour').val('00');
+            $('#interval-time-minute').val('00');
+            $('#interval-time-second').val('00');
+        });
+
+        function updateTime() {
+            const timeLabel = document.getElementById('timeLabel');
+            const currentTime = new Date();
+            const year = currentTime.getFullYear();
+            const month = String(currentTime.getMonth() + 1).padStart(2, '0');
+            const day = String(currentTime.getDate()).padStart(2, '0');
+            const hours = String(currentTime.getHours()).padStart(2, '0');
+            const minutes = String(currentTime.getMinutes()).padStart(2, '0');
+            const seconds = String(currentTime.getSeconds()).padStart(2, '0');
+            timeLabel.innerHTML = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        function startClock() {
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        window.onload = startClock;
+    });
+
+
+
+    </script>
+</html>

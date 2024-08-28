@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modbus 通信设置</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .main-frame {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .frame {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .frame-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: auto auto auto auto;
+            gap: 10px;
+            align-items: center;
+        }
+        .label {
+            text-align: right;
+        }
+        select, input, button {
+            width: 100%;
+            padding: 5px;
+        }
+        .status-label {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: red;
+            display: inline-block;
+        }
+        .time-input {
+            display: flex;
+            align-items: center;
+        }
+        .time-input select {
+            width: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-frame">
+        <div class="frame" id="serial-frame">
+            <div class="frame-title">串口设置</div>
+            <div class="grid">
+                <div class="label">串口号:</div>
+                <select id="port-combo"></select>
+                <div class="label">波特率:</div>
+                <select id="baud-combo">
+                    <option value="9600">9600</option>
+                    <option value="19200">19200</option>
+                    <option value="38400">38400</option>
+                    <option value="57600">57600</option>
+                    <option value="115200">115200</option>
+                </select>
+                <div class="label">数据位:</div>
+                <select id="data-combo">
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                </select>
+                <div class="label">停止位:</div>
+                <select id="stop-combo">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                </select>
+                <div class="label">校验位:</div>
+                <select id="parity-combo">
+                    <option value="N">N</option>
+                    <option value="E">E</option>
+                    <option value="O">O</option>
+                </select>
+                <div class="label">起始位:</div>
+                <select id="start-combo">
+                    <option value="1">1</option>
+                </select>
+                <button id="reset-btn">串口重置</button>
+                <button id="connect-btn">打开串口</button>
+                <span class="status-label" id="status-label"></span>
+            </div>
+        </div>
+        <div class="frame" id="time-frame">
+            <div class="frame-title">时间设置</div>
+            <div class="grid">
+                <div class="label">主控时间:</div>
+                <input type="date" id="main-date">
+                <div class="time-input">
+                    <select id="main-time-hour"></select>
+                    <span>:</span>
+                    <select id="main-time-minute"></select>
+                    <span>:</span>
+                    <select id="main-time-second"></select>
+                </div>
+                <button id="set-main-time-btn">设置</button>
+                <button id="reset-main-time-btn">重置</button>
+                <div class="label">测试时间:</div>
+                <div class="time-input">
+                    <select id="test-time-hour"></select>
+                    <span>:</span>
+                    <select id="test-time-minute"></select>
+                    <span>:</span>
+                    <select id="test-time-second"></select>
+                </div>
+                <button id="set-test-time-btn">设置</button>
+                <button id="reset-test-time-btn">重置</button>
+                <div class="label">间隔时间:</div>
+                <div class="time-input">
+                    <select id="interval-time-hour"></select>
+                    <span>:</span>
+                    <select id="interval-time-minute"></select>
+                    <span>:</span>
+                    <select id="interval-time-second"></select>
+                </div>
+                <button id="set-interval-time-btn">设置</button>
+                <button id="reset-interval-time-btn">重置</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // JavaScript代码可以在这里添加，用于动态填充下拉列表、处理按钮点击事件等
+    </script>
+</body>
+</html>

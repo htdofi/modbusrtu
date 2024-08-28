@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Command Page</title>
+    <script>
+        function sendCommand() {
+            const command = document.getElementById("commandInput").value;
+            fetch('/send-command/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: command })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("resultOutput").value = data.result;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("resultOutput").value = 'Error: ' + error;
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Command Page</h1>
+    <div>
+        <textarea id="commandInput" placeholder="Enter your command here" rows="4" cols="50"></textarea>
+    </div>
+    <div>
+        <button onclick="sendCommand()">Send Command</button>
+    </div>
+    <div>
+        <textarea id="resultOutput" placeholder="Output will be displayed here" rows="4" cols="50" readonly></textarea>
+    </div>
+</body>
+</html>
